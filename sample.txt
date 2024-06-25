@@ -1,0 +1,75 @@
+# peter = 'parker'
+peter = 'parker';
+
+
+# puts('peter parker é o homem-aranha')
+# CLARIM DIARIO INFORMA('peter parker é o homeme-aranha'); 
+
+
+# IF 
+VAI TEIA(true) {
+
+}
+
+# IF ELSE 
+VAI TEIA(true) {
+
+} SHAZAM {
+
+}
+
+# IF ELSE IF
+VAI TEIA(true) {
+
+} PARA O ALTO E AVANTE TEIA(true) {
+
+} SHAZAM {
+
+}
+
+
+# return 
+SEGURA O TROCO('!')
+
+# def escalar(item)
+# 
+# end
+
+COM GRANDES PODERES VEM GRANDES RESPONSABILIDADES escalar(item) {
+
+};
+
+
+# while 
+
+# VAMOS TER QUE REFAZER DESDE A FORMULA?(true) {
+
+}
+
+
+# O VERDADEIRO CRIME SERIA NAO TERMINA O QUE COMECAMOS
+
+
+10.times do |i|
+
+end
+#
+
+10.VEZES(i) {
+
+}
+
+10.VEZES(i) {
+  
+}
+
+O VERDADEIRO CRIME SERIA NAO TERMINA O QUE COMECAMOS(10) {
+
+}
+
+O VERDADEIRO CRIME SERIA NAO TERMINA O QUE COMECAMOS(10, i) {
+
+}
+
+
+
