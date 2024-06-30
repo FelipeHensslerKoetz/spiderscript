@@ -3,7 +3,7 @@ peter = 'parker';
 
 
 # puts('peter parker é o homem-aranha')
-# CLARIM DIARIO INFORMA('peter parker é o homeme-aranha'); 
+# CLARIM DIÁRIO INFORMA('peter parker é o homeme-aranha'); 
 
 
 # IF 
@@ -19,57 +19,60 @@ VAI TEIA(true) {
 }
 
 # IF ELSE IF
-VAI TEIA(true) {
+VAI TEIA!(true) {
 
 } PARA O ALTO E AVANTE TEIA(true) {
 
-} SHAZAM {
+} SHAZAM! {
 
 }
 
 
 # return 
-SEGURA O TROCO('!')
+SEGURA O TROCO!('!')
 
 # def escalar(item)
 # 
 # end
 
-COM GRANDES PODERES VEM GRANDES RESPONSABILIDADES escalar(item) {
+COM GRANDES PODERES VÊM GRANDES RESPONSABILIDADES escalar(item) {
 
 };
 
 
 # while 
 
-# VAMOS TER QUE REFAZER DESDE A FORMULA?(true) {
+# HORA DA PIZZA!(true) {
 
 }
 
 
-# O VERDADEIRO CRIME SERIA NAO TERMINA O QUE COMECAMOS
-
-
+# for 
 10.times do |i|
 
 end
-#
 
-10.VEZES(i) {
+ou 
+
+10.times do 
+
+end 
+
+##########################################
+
+AGORA CURTA O MANSO!(10) {
+
+}
+
+AGORA CURTA O MANSO!(10, i) {
 
 }
 
-10.VEZES(i) {
-  
-}
+# break 
+OLHA O DUENDE JÚNIOR, VAI CHORAR?
 
-O VERDADEIRO CRIME SERIA NAO TERMINA O QUE COMECAMOS(10) {
-
-}
-
-O VERDADEIRO CRIME SERIA NAO TERMINA O QUE COMECAMOS(10, i) {
-
-}
+# next 
+E QUEM DISSE QUE ISSO É PROBLEMA MEU?
 
 
 

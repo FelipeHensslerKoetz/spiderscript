@@ -17,24 +17,24 @@ RSpec.describe Lexer do
 
   context 'when tokenizing' do
     describe 'next' do
-      let(:input) { 'E QUEM DISSE QUE ISSO E PROBLEMA MEU?' }
+      let(:input) { 'E QUEM DISSE QUE ISSO É PROBLEMA MEU?' }
 
       it 'returns the correct token' do
         token = lexer.next
 
         expect(token.type).to eq(:NEXT)
-        expect(token.value).to eq('E QUEM DISSE QUE ISSO E PROBLEMA MEU?')
+        expect(token.value).to eq('E QUEM DISSE QUE ISSO É PROBLEMA MEU?')
       end
     end
 
     describe 'break' do
-      let(:input) { 'HAHAHA, EU ESTOU FORA?' }
+      let(:input) { 'OLHA O DUENDE JÚNIOR, VAI CHORAR?' }
 
       it 'returns the correct token' do
         token = lexer.next
 
         expect(token.type).to eq(:BREAK)
-        expect(token.value).to eq('HAHAHA, EU ESTOU FORA?')
+        expect(token.value).to eq('OLHA O DUENDE JÚNIOR, VAI CHORAR?')
       end
     end
 
@@ -135,13 +135,13 @@ RSpec.describe Lexer do
     end
 
     context 'print function call' do
-      let(:input) { 'CLARIM DIARIO INFORMA' }
+      let(:input) { 'CLARIM DIÁRIO INFORMA' }
 
       it 'returns the correct token' do
         token = lexer.next
 
         expect(token.type).to eq(:PRINT)
-        expect(token.value).to eq('CLARIM DIARIO INFORMA')
+        expect(token.value).to eq('CLARIM DIÁRIO INFORMA')
       end
     end
 
@@ -308,35 +308,35 @@ RSpec.describe Lexer do
     end
 
     context 'function' do
-      let(:input) { 'COM GRANDES PODERES VEM GRANDES RESPONSABILIDADES' }
+      let(:input) { 'COM GRANDES PODERES VÊM GRANDES RESPONSABILIDADES' }
 
       it 'returns the correct token' do
         token = lexer.next
 
         expect(token.type).to eq(:FUNCTION_DEFINITION)
-        expect(token.value).to eq('COM GRANDES PODERES VEM GRANDES RESPONSABILIDADES')
+        expect(token.value).to eq('COM GRANDES PODERES VÊM GRANDES RESPONSABILIDADES')
       end
     end
 
     context 'while' do
-      let(:input) { 'VAMOS TER QUE REFAZER DESDE A FORMULA?' }
+      let(:input) { 'HORA DA PIZZA!' }
 
       it 'returns the correct token' do
         token = lexer.next
 
         expect(token.type).to eq(:WHILE)
-        expect(token.value).to eq('VAMOS TER QUE REFAZER DESDE A FORMULA?')
+        expect(token.value).to eq('HORA DA PIZZA!')
       end
     end
 
     context 'for' do
-      let(:input) { 'O VERDADEIRO CRIME SERIA NAO TERMINA O QUE COMECAMOS' }
+      let(:input) { 'AGORA CURTA O MANSO!' }
 
       it 'returns the correct token' do
         token = lexer.next
 
         expect(token.type).to eq(:FOR)
-        expect(token.value).to eq('O VERDADEIRO CRIME SERIA NAO TERMINA O QUE COMECAMOS')
+        expect(token.value).to eq('AGORA CURTA O MANSO!')
       end
     end
 
@@ -368,7 +368,7 @@ RSpec.describe Lexer do
       end
 
       context 'print function call' do
-        let(:input) { 'CLARIM DIARIO INFORMA("Peter parker é o homem aranha");' }
+        let(:input) { 'CLARIM DIÁRIO INFORMA("Peter parker é o homem aranha");' }
 
         it 'returns the correct tokens' do
           lex_tokens = []
@@ -378,7 +378,7 @@ RSpec.describe Lexer do
           end
 
           expect(lex_tokens.map(&:type)).to eq(%i[PRINT OPEN_PARENTHESIS STRING CLOSE_PARENTHESIS END_OF_STATEMENT])
-          expect(lex_tokens.map(&:value)).to eq(['CLARIM DIARIO INFORMA', '(', 'Peter parker é o homem aranha', ')',
+          expect(lex_tokens.map(&:value)).to eq(['CLARIM DIÁRIO INFORMA', '(', 'Peter parker é o homem aranha', ')',
                                                  ';'])
         end
       end
@@ -446,7 +446,7 @@ RSpec.describe Lexer do
 
       context 'function' do
         let(:input) do
-          'COM GRANDES PODERES VEM GRANDES RESPONSABILIDADES escalar(item) {};'
+          'COM GRANDES PODERES VÊM GRANDES RESPONSABILIDADES escalar(item) {};'
         end
 
         it 'returns the correct tokens' do
@@ -458,14 +458,14 @@ RSpec.describe Lexer do
 
           expect(lex_tokens.map(&:type)).to eq(%i[FUNCTION_DEFINITION IDENTIFIER OPEN_PARENTHESIS IDENTIFIER
                                                   CLOSE_PARENTHESIS EMPTY_BLOCK END_OF_STATEMENT])
-          expect(lex_tokens.map(&:value)).to eq(['COM GRANDES PODERES VEM GRANDES RESPONSABILIDADES', 'escalar', '(',
+          expect(lex_tokens.map(&:value)).to eq(['COM GRANDES PODERES VÊM GRANDES RESPONSABILIDADES', 'escalar', '(',
                                                  'item', ')', '{}', ';'])
         end
       end
 
       context 'while loop' do
         let(:input) do
-          'VAMOS TER QUE REFAZER DESDE A FORMULA? (true) {};'
+          'HORA DA PIZZA!(true){};'
         end
 
         it 'returns the correct tokens' do
@@ -477,13 +477,13 @@ RSpec.describe Lexer do
 
           expect(lex_tokens.map(&:type)).to eq(%i[WHILE OPEN_PARENTHESIS BOOLEAN CLOSE_PARENTHESIS EMPTY_BLOCK
                                                   END_OF_STATEMENT])
-          expect(lex_tokens.map(&:value)).to eq(['VAMOS TER QUE REFAZER DESDE A FORMULA?', '(', 'true', ')', '{}', ';'])
+          expect(lex_tokens.map(&:value)).to eq(['HORA DA PIZZA!', '(', 'true', ')', '{}', ';'])
         end
       end
 
       context 'for loop - 1st variation' do
         let(:input) do
-          'O VERDADEIRO CRIME SERIA NAO TERMINA O QUE COMECAMOS (10) {};'
+          'AGORA CURTA O MANSO!(10) {};'
         end
 
         it 'returns the correct tokens' do
@@ -495,14 +495,14 @@ RSpec.describe Lexer do
 
           expect(lex_tokens.map(&:type)).to eq(%i[FOR OPEN_PARENTHESIS INTEGER CLOSE_PARENTHESIS EMPTY_BLOCK
                                                   END_OF_STATEMENT])
-          expect(lex_tokens.map(&:value)).to eq(['O VERDADEIRO CRIME SERIA NAO TERMINA O QUE COMECAMOS', '(', '10',
+          expect(lex_tokens.map(&:value)).to eq(['AGORA CURTA O MANSO!', '(', '10',
                                                  ')', '{}', ';'])
         end
       end
 
       context 'for loop - 2ND variation' do
         let(:input) do
-          'O VERDADEIRO CRIME SERIA NAO TERMINA O QUE COMECAMOS (10, i) {};'
+          'AGORA CURTA O MANSO!(10, i) {};'
         end
 
         it 'returns the correct tokens' do
@@ -514,7 +514,7 @@ RSpec.describe Lexer do
 
           expect(lex_tokens.map(&:type)).to eq(%i[FOR OPEN_PARENTHESIS INTEGER COMMA IDENTIFIER CLOSE_PARENTHESIS
                                                   EMPTY_BLOCK END_OF_STATEMENT])
-          expect(lex_tokens.map(&:value)).to eq(['O VERDADEIRO CRIME SERIA NAO TERMINA O QUE COMECAMOS', '(', '10',
+          expect(lex_tokens.map(&:value)).to eq(['AGORA CURTA O MANSO!', '(', '10',
                                                  ',', 'i', ')', '{}', ';'])
         end
       end

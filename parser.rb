@@ -1,283 +1,307 @@
+# frozen_string_literal: true
+
 require 'rly'
 require 'pry'
 
+# rubocop:disable Metrics/LineLength
+# rubocop:disable Metrics/ClassLength
+# rubocop:disable Style/Documentation
 class Parser < Rly::Yacc
-  precedence :left, :PLUS, :MINUS
-  precedence :left, :MULTIPLY, :DIVIDE, :MODULUS
-  precedence :right, :EXPONENT
-
-  # Program is a list of statements
-  rule 'program : statement_list' do |a, b|
-    a.value = b.value
+  def add_identation(yacc_symbol)
+    "\s\s#{yacc_symbol.value.gsub("\n", "\n\s\s").sub(/\n\s\s$/, '')}\n"
   end
 
-  # A statement list is a list of statements
-  rule 'statement_list : statement_list statement' do |a, b, c|
-    a.value = b.value + c.value
+  rule 'program : statement_list' do |*args|
+    args[0].value = args[1].value
   end
 
-  # A statement list is a single statement
-  rule 'statement_list : statement' do |a, b|
-    a.value = b.value
+  rule 'statement_list : statement_list statement' do |*args|
+    args[0].value = args[1].value + args[2].value
   end
 
-  # Every statement should end with a semicolon
-  rule 'statement : expression END_OF_STATEMENT' do |a, b|
-    a.value = b.value
+  rule 'statement_list : statement' do |*args|
+    args[0].value = args[1].value
   end
 
-  # Variable assignment
-  rule 'expression : IDENTIFIER ASSIGN expression' do |a, b, _c, d|
-    a.value = "#{b.value} = #{d.value}\n"
+  rule 'statement : expression END_OF_STATEMENT' do |*args|
+    args[0].value = args[1].value
   end
 
-  # String
-  rule 'expression : STRING' do |a, b|
-    a.value = "\"#{b.value}\""
+  rule 'expression : INTEGER
+                   | FLOAT
+                   | BOOLEAN
+                   | IDENTIFIER' do |*args|
+    args[0].value = args[1].value
   end
 
-  # Integer
-  rule 'expression : INTEGER' do |a, b|
-    a.value = b.value
+  rule 'expression : BREAK' do |*args|
+    args[0].value = "break\n"
   end
 
-  # Float
-  rule 'expression : FLOAT' do |a, b|
-    a.value = b.value
+  rule 'expression : STRING' do |*args|
+    args[0].value = "\"#{args[1].value}\""
   end
 
-  # Boolean
-  rule 'expression : BOOLEAN' do |a, b|
-    a.value = b.value
+  rule 'expression : NEXT' do |*args|
+    args[0].value = 'next'
   end
 
-  # Identifier
-  rule 'expression : IDENTIFIER' do |a, b|
-    a.value = b.value
+  rule 'expression : expression PLUS expression
+                   | expression MINUS expression
+                   | expression MULTIPLY expression
+                   | expression DIVIDE expression
+                   | expression MODULUS expression
+                   | expression EXPONENT expression
+                   | expression GREATER_THAN expression
+                   | expression GREATER_THAN_OR_EQUAL expression
+                   | expression EQUAL expression
+                   | expression NOT_EQUAL expression
+                   | expression LESS_THAN expression
+                   | expression LESS_THAN_OR_EQUAL expression
+                   | expression AND expression
+                   | expression OR expression' do |*args|
+    args[0].value = "#{args[1].value} #{args[2].value} #{args[3].value}"
   end
 
-  # sum
-  rule 'expression : expression PLUS expression' do |a, b, _c, d|
-    a.value = "#{b.value} + #{d.value}"
+  rule 'expression : OPEN_PARENTHESIS expression CLOSE_PARENTHESIS' do |*args|
+    args[0].value = "(#{args[2].value})"
   end
 
-  # subtraction
-  rule 'expression : expression MINUS expression' do |a, b, _c, d|
-    a.value = "#{b.value} - #{d.value}"
+  rule 'expression : NOT expression' do |*args|
+    args[0].value = "!#{args[2].value}"
   end
 
-  # multiplication
-  rule 'expression : expression MULTIPLY expression' do |a, b, _c, d|
-    a.value = "#{b.value} * #{d.value}"
+  rule 'expression : IDENTIFIER PLUS_ASSIGN expression
+                   | IDENTIFIER MINUS_ASSIGN expression
+                   | IDENTIFIER MULTIPLY_ASSIGN expression
+                   | IDENTIFIER DIVIDE_ASSIGN expression
+                   | IDENTIFIER MODULUS_ASSIGN expression
+                   | IDENTIFIER EXPONENT_ASSIGN expression
+                   | IDENTIFIER ASSIGN expression' do |*args|
+    args[0].value = "#{args[1].value} #{args[2].value} #{args[3].value}\n"
   end
 
-  # division
-  rule 'expression : expression DIVIDE expression' do |a, b, _c, d|
-    a.value = "#{b.value} / #{d.value}"
+  rule 'expression : IDENTIFIER OPEN_PARENTHESIS expression_list CLOSE_PARENTHESIS' do |*args|
+    args[0].value = "#{args[1].value}#{args[2].value}#{args[3].value}#{args[4].value}"
   end
 
-  # modulus
-  rule 'expression : expression MODULUS expression' do |a, b, _c, d|
-    a.value = "#{b.value} % #{d.value}"
+  rule 'expression : IDENTIFIER OPEN_PARENTHESIS CLOSE_PARENTHESIS' do |*args|
+    args[0].value = "#{args[1].value}#{args[2].value}#{args[3].value}"
   end
 
-  # exponent
-  rule 'expression : expression EXPONENT expression' do |e, e1, ex, e2|
-    e.value = "#{e1.value} ** #{e2.value}"
+  rule 'expression_list : expression_list COMMA expression' do |*args|
+    args[0].value = "#{args[1].value}#{args[2].value}#{args[3].value}"
   end
 
-  # parenthesis expression
-  rule 'expression : OPEN_PARENTHESIS expression CLOSE_PARENTHESIS' do |e, l, e2, r|
-    e.value = "(#{e2.value})"
+  rule 'expression_list : expression' do |*args|
+    args[0].value = args[1].value
   end
 
-  # greater than
-  rule 'expression : expression GREATER_THAN expression' do |e, e1, gt, e2|
-    e.value = "#{e1.value} > #{e2.value}"
+  rule 'expression : PRINT OPEN_PARENTHESIS expression CLOSE_PARENTHESIS' do |*args|
+    args[0].value = "puts #{args[3].value}\n"
   end
 
-  # greater than or equal
-  rule 'expression : expression GREATER_THAN_OR_EQUAL expression' do |e, e1, ge, e2|
-    e.value = "#{e1.value} >= #{e2.value}"
+  rule 'expression : RETURN OPEN_PARENTHESIS expression CLOSE_PARENTHESIS' do |*args|
+    args[0].value = "return #{args[3].value}\n"
   end
 
-  # equal
-  rule 'expression : expression EQUAL expression' do |e, e1, eq, e2|
-    e.value = "#{e1.value} == #{e2.value}"
+  rule 'expression : IF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS EMPTY_BLOCK' do |*args|
+    args[0].value = "if #{args[3].value}\nend\n"
   end
 
-  # not equal
-  rule 'expression : expression NOT_EQUAL expression' do |e, e1, ne, e2|
-    e.value = "#{e1.value} != #{e2.value}"
+  rule 'expression : IF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS OPEN_BRACKET statement_list CLOSE_BRACKET' do |*args|
+    if_block = add_identation(args[6])
+    args[0].value = "if #{args[3].value}\n#{if_block}end\n"
   end
 
-  # less than
-  rule 'expression : expression LESS_THAN expression' do |e, e1, lt, e2|
-    e.value = "#{e1.value} < #{e2.value}"
+  rule 'expression : IF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS EMPTY_BLOCK ELSE EMPTY_BLOCK' do |*args|
+    args[0].value = "if #{args[3].value}\nelse\nend\n"
   end
 
-  # less than or equal
-  rule 'expression : expression LESS_THAN_OR_EQUAL expression' do |e, e1, le, e2|
-    e.value = "#{e1.value} <= #{e2.value}"
+  rule 'expression : IF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS OPEN_BRACKET statement_list CLOSE_BRACKET ELSE OPEN_BRACKET statement_list CLOSE_BRACKET' do |*args|
+    if_block = add_identation(args[6])
+    else_statement_list = add_identation(args[10])
+    args[0].value = "if #{args[3].value}\n#{if_block}else\n#{else_statement_list}end\n"
   end
 
-  # AND operator
-  rule 'expression : expression AND expression' do |e, e1, a, e2|
-    e.value = "#{e1.value} && #{e2.value}"
+  rule 'expression : IF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS OPEN_BRACKET statement_list CLOSE_BRACKET ELSE EMPTY_BLOCK' do |*args|
+    if_block = add_identation(args[6])
+    args[0].value = "if #{args[3].value}\n#{if_block}else\nend\n"
   end
 
-  # OR operator
-  rule 'expression : expression OR expression' do |e, e1, o, e2|
-    e.value = "#{e1.value} || #{e2.value}"
+  rule 'expression : IF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS EMPTY_BLOCK ELSE OPEN_BRACKET statement_list CLOSE_BRACKET' do |*args|
+    else_statement_list = add_identation(args[8])
+    args[0].value = "if #{args[3].value}\nelse\n#{else_statement_list}end\n"
   end
 
-  # NOT operator
-  rule 'expression : NOT expression' do |e, n, e2|
-    e.value = "!#{e2.value}"
+  rule 'expression : IF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS OPEN_BRACKET statement_list CLOSE_BRACKET ELSIF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS EMPTY_BLOCK' do |*args|
+    if_block = add_identation(args[6])
+    args[0].value = "if #{args[3].value}\n#{if_block}elsif #{args[10].value}\nend\n"
   end
 
-  # PLUS_ASSIGN operator
-  rule 'expression : IDENTIFIER PLUS_ASSIGN expression' do |e, i, pa, e2|
-    e.value = "#{i.value} += #{e2.value}\n"
+  rule 'expression : IF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS EMPTY_BLOCK ELSIF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS OPEN_BRACKET statement_list CLOSE_BRACKET' do |*args|
+    elsif_block = add_identation(args[11])
+    args[0].value = "if #{args[3].value}\nelsif #{args[8]}\n#{elsif_block}end\n"
   end
 
-  # MINUS_ASSIGN operator
-  rule 'expression : IDENTIFIER MINUS_ASSIGN expression' do |e, i, ma, e2|
-    e.value = "#{i.value} -= #{e2.value}\n"
+  rule 'expression : IF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS EMPTY_BLOCK ELSIF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS EMPTY_BLOCK' do |*args|
+    args[0].value = "if #{args[3].value}\nelsif #{args[8].value}\nend\n"
   end
 
-  # MULTIPLY_ASSIGN operator
-  rule 'expression : IDENTIFIER MULTIPLY_ASSIGN expression' do |e, i, ma, e2|
-    e.value = "#{i.value} *= #{e2.value}\n"
+  rule 'expression : IF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS OPEN_BRACKET statement_list CLOSE_BRACKET ELSIF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS OPEN_BRACKET statement_list CLOSE_BRACKET' do |*args|
+    if_block = add_identation(args[6])
+    elsif_block = add_identation(args[13])
+
+    args[0].value = "if #{args[3].value}\n#{if_block}elsif #{args[10]}\n#{elsif_block}end\n"
   end
 
-  # DIVIDE_ASSIGN operator
-  rule 'expression : IDENTIFIER DIVIDE_ASSIGN expression' do |e, i, da, e2|
-    e.value = "#{i.value} /= #{e2.value}\n"
+  rule 'expression : IF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS OPEN_BRACKET statement_list CLOSE_BRACKET elsif_list' do |*args|
+    if_block = add_identation(args[6])
+    args[0].value = "if #{args[3].value}\n#{if_block}#{args[8]}end\n"
   end
 
-  # MODULUS_ASSIGN operator
-  rule 'expression : IDENTIFIER MODULUS_ASSIGN expression' do |e, i, ma, e2|
-    e.value = "#{i.value} %= #{e2.value}\n"
+  rule 'expression : IF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS EMPTY_BLOCK elsif_list' do |*args|
+    args[0].value = "if #{args[3].value}\n#{args[6].value}end\n"
   end
 
-  # EXPONENT_ASSIGN operator
-  rule 'expression : IDENTIFIER EXPONENT_ASSIGN expression' do |e, i, ea, e2|
-    e.value = "#{i.value} **= #{e2.value}\n"
+  rule 'elsif_list : ELSIF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS EMPTY_BLOCK' do |*args|
+    args[0].value = "elsif #{args[3].value}\n"
   end
 
-  # function call 
-  rule 'expression : IDENTIFIER OPEN_PARENTHESIS expression_list CLOSE_PARENTHESIS' do |e, i, op, el, cp|
-    e.value = "#{i.value}(#{el.value})"
+  rule 'elsif_list : elsif_list ELSIF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS EMPTY_BLOCK' do |*args|
+    args[0].value = "#{args[1].value}elsif #{args[4].value}\n"
   end
 
-  # function call with no arguments
-  rule 'expression : IDENTIFIER OPEN_PARENTHESIS CLOSE_PARENTHESIS' do |e, i, op, cp|
-    e.value = "#{i.value}()"
+  rule 'elsif_list : ELSIF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS OPEN_BRACKET statement_list CLOSE_BRACKET' do |*args|
+    elsif_block = add_identation(args[6])
+    args[0].value = "elsif #{args[3].value}\n#{elsif_block}"
   end
 
-  # expression list
-  rule 'expression_list : expression_list COMMA expression' do |el, el2, c, e|
-    el.value = "#{el2.value},#{e.value}"
+  rule 'elsif_list : elsif_list ELSIF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS OPEN_BRACKET statement_list CLOSE_BRACKET' do |*args|
+    elsif_block = add_identation(args[7])
+    args[0].value = "#{args[1].value}elsif #{args[4].value}\n#{elsif_block}"
   end
 
-  # single expression
-  rule 'expression_list : expression' do |el, e|
-    el.value = e.value
+  rule 'expression : IF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS OPEN_BRACKET statement_list CLOSE_BRACKET ELSIF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS EMPTY_BLOCK ELSE EMPTY_BLOCK' do |*args|
+    if_block = add_identation(args[6])
+    args[0].value = "if #{args[3].value}\n#{if_block}elsif #{args[10].value}\nelse\nend\n"
   end
 
-  # PRINT
-  rule 'expression : PRINT OPEN_PARENTHESIS expression CLOSE_PARENTHESIS' do |e, p, op, e2, cp|
-    e.value = "puts(#{e2.value})\n"
+  rule 'expression : IF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS EMPTY_BLOCK ELSIF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS OPEN_BRACKET  statement_list CLOSE_BRACKET ELSE EMPTY_BLOCK' do |*args|
+    elsif_block = add_identation(args[11])
+    args[0].value = "if #{args[3].value}\nelsif #{args[8].value}\n#{elsif_block}else\nend\n"
   end
 
-  # IF (empty block)
-  rule 'expression : IF expression EMPTY_BLOCK' do |e, i, e2, ob, sl, cb|
-    e.value = "if#{e2.value}\nend\n"
+  rule 'expression : IF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS EMPTY_BLOCK ELSIF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS EMPTY_BLOCK ELSE OPEN_BRACKET statement_list CLOSE_BRACKET' do |*args|
+    else_statement_list = add_identation(args[13])
+    args[0].value = "if #{args[3].value}\nelsif #{args[8].value}\nelse\n#{else_statement_list}end\n"
   end
 
-  # IF (non-empty block)
-  rule 'expression : IF expression OPEN_BRACKET statement_list CLOSE_BRACKET' do |e, i, e2, ob, sl, cb|
-    e.value = "if#{e2.value}\n#{sl.value}end\n"
+  rule 'expression : IF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS OPEN_BRACKET statement_list CLOSE_BRACKET ELSIF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS OPEN_BRACKET statement_list CLOSE_BRACKET ELSE OPEN_BRACKET statement_list CLOSE_BRACKET' do |*args|
+    if_block = add_identation(args[6])
+    elsif_block = add_identation(args[13])
+    else_statement_list = add_identation(args[17])
+
+    args[0].value = "if #{args[3].value}\n#{if_block}elsif #{args[10]}\n#{elsif_block}else\n#{else_statement_list}end\n"
   end
 
-  # IF (empty block) ELSE (empty block)
-  rule 'expression : IF expression EMPTY_BLOCK ELSE EMPTY_BLOCK' do |e, i, e2, ob, sl, cb, el, ob2, sl2, cb2|
-    e.value = "if#{e2.value}\nelse\nend\n"
+  rule 'expression : IF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS EMPTY_BLOCK ELSIF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS EMPTY_BLOCK ELSE EMPTY_BLOCK' do |*args|
+    args[0].value = "if #{args[3].value}\nelsif #{args[8].value}\nelse\nend\n"
   end
 
-  # IF (non-empty block) ELSE (non-empty block)
-  rule 'expression : IF expression OPEN_BRACKET statement_list CLOSE_BRACKET ELSE OPEN_BRACKET statement_list CLOSE_BRACKET' do |e, i, e2, ob, sl, cb, el, ob2, sl2, cb2|
-    e.value = "if#{e2.value}\n#{sl.value}else\n#{sl2.value}end\n"
+  rule 'expression : IF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS OPEN_BRACKET statement_list CLOSE_BRACKET ELSIF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS OPEN_BRACKET statement_list CLOSE_BRACKET ELSE EMPTY_BLOCK' do |*args|
+    if_block = add_identation(args[6])
+    elsif_block = add_identation(args[13])
+    args[0].value = "if #{args[3].value}\n#{if_block}elsif #{args[10].value}\n#{elsif_block}else\nend\n"
   end
 
-  # IF (non-empty block) ELSE (empty block)
-  rule 'expression : IF expression OPEN_BRACKET statement_list CLOSE_BRACKET ELSE EMPTY_BLOCK' do |e, i, e2, ob, sl, cb, el, ob2, sl2, cb2|
-    e.value = "if#{e2.value}\n#{sl.value}else\nend\n"
+  rule 'expression : IF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS OPEN_BRACKET statement_list CLOSE_BRACKET ELSIF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS EMPTY_BLOCK ELSE OPEN_BRACKET statement_list CLOSE_BRACKET' do |*args|
+    if_block = add_identation(args[6])
+    else_statement_list = add_identation(args[15])
+    args[0].value = "if #{args[3].value}\n#{if_block}elsif #{args[10].value}\nelse\n#{else_statement_list}end\n"
   end
 
-  # IF (empty block) ELSE (non-empty block)
-  rule 'expression : IF expression EMPTY_BLOCK ELSE OPEN_BRACKET statement_list CLOSE_BRACKET' do |e, i, e2, eb, el, ob, sl, cb| 
-    e.value = "if#{e2.value}\nelse\n#{sl.value}end\n"
+  rule 'expression : IF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS EMPTY_BLOCK ELSIF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS OPEN_BRACKET statement_list CLOSE_BRACKET ELSE OPEN_BRACKET statement_list CLOSE_BRACKET' do |*args|
+    elsif_block = add_identation(args[11])
+    else_statement_list = add_identation(args[15])
+    args[0].value = "if #{args[3].value}\nelsif #{args[8].value}\n#{elsif_block}else\n#{else_statement_list}end\n"
   end
 
-  # IF (present block) ELSIF (empty block)
-  rule 'expression : IF expression OPEN_BRACKET statement_list CLOSE_BRACKET ELSIF expression EMPTY_BLOCK' do |e, i, e2, ob, sl, cb, el, e3, eb|
-    e.value = "if#{e2.value}\n#{sl.value}elsif#{e3.value}\nend\n"
+  rule 'expression : IF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS OPEN_BRACKET statement_list CLOSE_BRACKET elsif_list ELSE EMPTY_BLOCK' do |*args|
+    if_block = add_identation(args[6])
+    args[0].value = "if #{args[3].value}\n#{if_block}#{args[8].value}else\nend\n"
   end
 
-  # IF (empty block) ELSIF (present block)
-  rule 'expression : IF expression EMPTY_BLOCK ELSIF expression OPEN_BRACKET statement_list CLOSE_BRACKET' do |e,i, e2,eb,el,e3, ob, sl, cb|
-    e.value = "if#{e2.value}\nelsif#{e3}\n#{sl.value}end\n"
+  rule 'expression : IF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS OPEN_BRACKET statement_list CLOSE_BRACKET elsif_list ELSE OPEN_BRACKET statement_list CLOSE_BRACKET' do |*args|
+    if_block = add_identation(args[6])
+    else_statement_list = add_identation(args[11])
+    args[0].value = "if #{args[3].value}\n#{if_block}#{args[8].value}else\n#{else_statement_list}end\n"
   end
 
-  # IF (empty block) ELSIF (empty block)
-  rule 'expression : IF expression EMPTY_BLOCK ELSIF expression EMPTY_BLOCK' do |e, i, e2, eb, el, e3, eb2|
-    e.value = "if#{e2.value}\nelsif#{e3.value}\nend\n"
+  rule 'expression : IF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS EMPTY_BLOCK elsif_list ELSE OPEN_BRACKET statement_list CLOSE_BRACKET' do |*args|
+    elsif_block = add_identation(args[9])
+    args[0].value = "if #{args[3].value}\n#{args[6].value}else\n#{elsif_block}end\n"
   end
 
-  # IF (present block) ELSIF (present block)
-  rule 'expression : IF expression OPEN_BRACKET statement_list CLOSE_BRACKET ELSIF expression OPEN_BRACKET statement_list CLOSE_BRACKET' do |e, i, e2, ob, sl, cb, el, e3, ob2, sl2, cb2|
-    e.value = "if#{e2.value}\n#{sl.value}elsif#{e3.value}\n#{sl2.value}end\n"
+  rule 'expression : IF OPEN_PARENTHESIS expression CLOSE_PARENTHESIS EMPTY_BLOCK elsif_list ELSE EMPTY_BLOCK' do |*args|
+    args[0].value = "if #{args[3].value}\n#{args[6].value}else\nend\n"
   end
 
-  # IF (present block) ELSIF (any number of empty blocks)
-  rule 'expression : IF expression OPEN_BRACKET statement_list CLOSE_BRACKET elsif_list' do |e, i, e2, ob, sl, cb, el|
-    e.value = "if#{e2.value}\n#{sl.value}#{el.value}end\n"
+  rule 'expression : FUNCTION_DEFINITION IDENTIFIER OPEN_PARENTHESIS CLOSE_PARENTHESIS EMPTY_BLOCK' do |*args|
+    args[0].value = "def #{args[2].value}\nend\n"
   end
 
-  # IF (empty block) ELSIF (any number of present blocks)
-  rule 'expression : IF expression EMPTY_BLOCK elsif_list' do |e, i, e2, eb, el|
-    e.value = "if#{e2.value}\n#{el.value}end\n"
+  rule 'expression : FUNCTION_DEFINITION IDENTIFIER OPEN_PARENTHESIS CLOSE_PARENTHESIS OPEN_BRACKET statement_list CLOSE_BRACKET' do |*args|
+    function_statement_list = add_identation(args[6])
+
+    args[0].value = "def #{args[2].value}\n#{function_statement_list}end\n"
   end
 
-  # elsif list - 1 variant
-  rule 'elsif_list : ELSIF expression EMPTY_BLOCK' do |el, e, e1, eb|
-    el.value = "elsif#{e1.value}\n"
+  rule 'expression : FUNCTION_DEFINITION IDENTIFIER OPEN_PARENTHESIS IDENTIFIER CLOSE_PARENTHESIS EMPTY_BLOCK' do |*args|
+    args[0].value = "def #{args[2].value}(#{args[4].value})\nend\n"
   end
 
-  # elsif list - 2 variant
-  rule 'elsif_list : elsif_list ELSIF expression EMPTY_BLOCK' do |el, el2, e, e1, eb|
-    el.value = "#{el2.value}elsif#{e1.value}\n"
+  rule 'expression : FUNCTION_DEFINITION IDENTIFIER OPEN_PARENTHESIS IDENTIFIER CLOSE_PARENTHESIS OPEN_BRACKET statement_list CLOSE_BRACKET' do |*args|
+    function_statement_list = add_identation(args[7])
+    args[0].value = "def #{args[2].value}(#{args[4].value})\n#{function_statement_list}end\n"
   end
 
-  # elsif list - 3 variant
-  rule 'elsif_list : ELSIF expression OPEN_BRACKET statement_list CLOSE_BRACKET' do |el, e, e1, ob, sl, cb|
-    el.value = "elsif#{e1.value}\n#{sl.value}"
+  rule 'expression : FUNCTION_DEFINITION IDENTIFIER OPEN_PARENTHESIS expression_list CLOSE_PARENTHESIS EMPTY_BLOCK' do |*args|
+    args[0].value = "def #{args[2].value}(#{args[4].value})\nend\n"
   end
 
-  # elsif list - 4 variant
-  rule 'elsif_list : elsif_list ELSIF expression OPEN_BRACKET statement_list CLOSE_BRACKET' do |el, el2, e, e1, ob, sl, cb|
-    el.value = "#{el2.value}elsif#{e1.value}\n#{sl.value}"
+  rule 'expression : FUNCTION_DEFINITION IDENTIFIER OPEN_PARENTHESIS expression_list CLOSE_PARENTHESIS OPEN_BRACKET statement_list CLOSE_BRACKET' do |*args|
+    function_statement_list = add_identation(args[7])
+    args[0].value = "def #{args[2].value}(#{args[4].value})\n#{function_statement_list}end\n"
   end
 
-  # IF ELSIF (empty block) ELSE (empty block)
-  rule 'expression : IF expression OPEN_BRACKET statement_list CLOSE_BRACKET ELSIF expression EMPTY_BLOCK ELSE EMPTY_BLOCK' do |e, i, e2, ob, sl, cb, el, e3, eb, el2, eb2|
-    e.value = "if#{e2.value}\n#{sl.value}elsif#{e3.value}\nelse\nend\n"
+  rule 'expression : WHILE OPEN_PARENTHESIS expression CLOSE_PARENTHESIS EMPTY_BLOCK' do |*args|
+    args[0].value = "while #{args[3].value}\nend\n"
   end
 
-  # IF (empty block) ELSIF ELSE (empty block)
-  rule 'expression : IF expression EMPTY_BLOCK ELSIF expression OPEN_BRACKET  statement_list CLOSE_BRACKET ELSE EMPTY_BLOCK' do |e, i, e2, eb, el, e3, eb2, el2, eb3|
+  rule 'expression : WHILE OPEN_PARENTHESIS expression CLOSE_PARENTHESIS OPEN_BRACKET statement_list CLOSE_BRACKET' do |*args|
+    while_statement_list = add_identation(args[6])
+    args[0].value = "while #{args[3].value}\n#{while_statement_list}end\n"
+  end
 
+  rule 'expression : FOR OPEN_PARENTHESIS INTEGER CLOSE_PARENTHESIS EMPTY_BLOCK' do |*args|
+    args[0].value = "#{args[3]}.times do\nend\n"
+  end
+
+  rule 'expression : FOR OPEN_PARENTHESIS INTEGER CLOSE_PARENTHESIS OPEN_BRACKET statement_list CLOSE_BRACKET' do |*args|
+    for_statement_list = add_identation(args[6])
+    args[0].value = "#{args[3]}.times do\n#{for_statement_list}end\n"
+  end
+
+  rule 'expression : FOR OPEN_PARENTHESIS INTEGER COMMA IDENTIFIER CLOSE_PARENTHESIS EMPTY_BLOCK' do |*args|
+    args[0].value = "#{args[3]}.times do |#{args[5].value}|\nend\n"
+  end
+
+  rule 'expression : FOR OPEN_PARENTHESIS INTEGER COMMA IDENTIFIER CLOSE_PARENTHESIS OPEN_BRACKET statement_list CLOSE_BRACKET' do |*args|
+    for_statement_list = add_identation(args[8])
+    args[0].value = "#{args[3]}.times do |#{args[5].value}|\n#{for_statement_list}end\n"
   end
 end
+# rubocop:enable Metrics/LineLength
+# rubocop:enable Metrics/ClassLength
+# rubocop:enable Style/Documentation

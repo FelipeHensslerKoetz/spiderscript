@@ -1,15 +1,26 @@
 require './lexer.rb'
 require './parser.rb'
-require 'pry'
 
-input_file = './input.spyder'
-output_file = './output.rb'
-input_text = File.read(input_file)
+@input_file = './input.spiderscript'
+@output_file = './output.rb'
+@input_text = File.read(@input_file)
+@parser = Parser.new(Lexer.new)
+@ruby_code = nil
 
-parser = Parser.new(Lexer.new)
+File.open('parser_details.txt', 'w') do |file|
+  $stdout = file
+  @ruby_code = @parser.parse(@input_text, true)
+  $stdout = STDOUT
+  file.close
+end
 
-begin
-  ruby_code = parser.parse(input_text)
-  File.write(output_file, "# frozen_string_literal: true\n\n#{ruby_code}")
-  puts "Ruby code generated successfully in #{output_file}"
+@parser_details = File.read('parser_details.txt')
+
+if @parser_details.match?(/(error|Syntax error|Fail)/)
+  puts 'Syntax error(s) were found in the input file. Please check parser_details.txt for more information.'
+  puts 'No Ruby code was generated.'
+else
+  puts 'Generating Ruby code...'
+  File.write(@output_file, @ruby_code)
+  puts 'Ruby code generated successfully! Check output.rb for the generated code.'
 end
