@@ -1,78 +1,75 @@
-# peter = 'parker'
-peter = 'parker';
+COM GRANDES PODERES VÊM GRANDES RESPONSABILIDADES fibonacci(n) {
+  VAI TEIA!(n <=1) {
+    SEGURA O TROCO!(n);
+  };
 
-
-# puts('peter parker é o homem-aranha')
-# CLARIM DIÁRIO INFORMA('peter parker é o homeme-aranha'); 
-
-
-# IF 
-VAI TEIA(true) {
-
-}
-
-# IF ELSE 
-VAI TEIA(true) {
-
-} SHAZAM {
-
-}
-
-# IF ELSE IF
-VAI TEIA!(true) {
-
-} PARA O ALTO E AVANTE TEIA(true) {
-
-} SHAZAM! {
-
-}
-
-
-# return 
-SEGURA O TROCO!('!')
-
-# def escalar(item)
-# 
-# end
-
-COM GRANDES PODERES VÊM GRANDES RESPONSABILIDADES escalar(item) {
-
+  SEGURA O TROCO!(fibonacci(n-1) + fibonacci(n-2));
 };
 
+CLARIM DIÁRIO INFORMA(fibonacci(40));
 
-# while 
+VAI TEIA!((1 == 1) || (1 <=1)) {
+  CLARIM DIÁRIO INFORMA("1 é igual 1 ou 1 é menor ou igual a 1");
+};
 
-# HORA DA PIZZA!(true) {
+VAI TEIA!(1 == 2) {
+  CLARIM DIÁRIO INFORMA("1 é igual 2");
+} SHAZAM! {
+  CLARIM DIÁRIO INFORMA("1 não é igual a 2");
+};
 
-}
+VAI TEIA!(1 == 2) {
+  CLARIM DIÁRIO INFORMA("1 é igual 2");
+} PARA O ALTO E AVANTE TEIA!(1==3) {
+  CLARIM DIÁRIO INFORMA("1 é igual 3");
+} PARA O ALTO E AVANTE TEIA!(1==4) {
+  CLARIM DIÁRIO INFORMA("1 é igual 4");
+} SHAZAM! {
+  CLARIM DIÁRIO INFORMA("1 é diferente de 2, 3 ou 4");
+};
 
+contador = 0; 
 
-# for 
-10.times do |i|
+HORA DA PIZZA!(contador < 10) {
+  CLARIM DIÁRIO INFORMA(contador);
+  contador +=1;
+};
 
-end
+HORA DA PIZZA!(true) {
+  CLARIM DIÁRIO INFORMA(contador);
 
-ou 
+  VAI TEIA!(contador == 42) {
+    OLHA O DUENDE JÚNIOR, VAI CHORAR?;
+  };
 
-10.times do 
-
-end 
-
-##########################################
+  contador +=1;
+};
 
 AGORA CURTA O MANSO!(10) {
-
-}
+  CLARIM DIÁRIO INFORMA("Peter parker é o homem aranha!");
+};
 
 AGORA CURTA O MANSO!(10, i) {
+  VAI TEIA!(i % 2 == 0) {
+    E QUEM DISSE QUE ISSO É PROBLEMA MEU?;
+  }; 
 
-}
+  CLARIM DIÁRIO INFORMA(i);
+  CLARIM DIÁRIO INFORMA("Peter parker é o homem aranha!");
+};
 
-# break 
-OLHA O DUENDE JÚNIOR, VAI CHORAR?
-
-# next 
-E QUEM DISSE QUE ISSO É PROBLEMA MEU?
-
-
-
+CLARIM DIÁRIO INFORMA(1+1);
+CLARIM DIÁRIO INFORMA(1-1);
+CLARIM DIÁRIO INFORMA(1*1);
+CLARIM DIÁRIO INFORMA(1/1);
+CLARIM DIÁRIO INFORMA(1%1);
+CLARIM DIÁRIO INFORMA(1**1);
+CLARIM DIÁRIO INFORMA(1==1);
+CLARIM DIÁRIO INFORMA(1!=1);
+CLARIM DIÁRIO INFORMA(1>1);
+CLARIM DIÁRIO INFORMA(1<1);
+CLARIM DIÁRIO INFORMA(1>=1);
+CLARIM DIÁRIO INFORMA(1<=1);
+CLARIM DIÁRIO INFORMA(1 && 1);
+CLARIM DIÁRIO INFORMA(1 || 1);
+CLARIM DIÁRIO INFORMA(!1);
