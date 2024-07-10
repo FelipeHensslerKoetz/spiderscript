@@ -293,12 +293,29 @@ class Parser < Rly::Yacc
     args[0].value = "#{args[3]}.times do\n#{for_statement_list}end"
   end
 
-  # aceitar variavel no lugar do inteiro
   rule 'expression : FOR OPEN_PARENTHESIS INTEGER COMMA IDENTIFIER CLOSE_PARENTHESIS EMPTY_BLOCK' do |*args|
     args[0].value = "#{args[3]}.times do |#{args[5].value}|\nend"
   end
 
   rule 'expression : FOR OPEN_PARENTHESIS INTEGER COMMA IDENTIFIER CLOSE_PARENTHESIS OPEN_BRACKET statement_list CLOSE_BRACKET' do |*args|
+    for_statement_list = add_identation(args[8])
+    args[0].value = "#{args[3]}.times do |#{args[5].value}|\n#{for_statement_list}end"
+  end
+
+  rule 'expression : FOR OPEN_PARENTHESIS IDENTIFIER CLOSE_PARENTHESIS EMPTY_BLOCK' do |*args|
+    args[0].value = "#{args[3]}.times do\nend"
+  end
+
+  rule 'expression : FOR OPEN_PARENTHESIS IDENTIFIER CLOSE_PARENTHESIS OPEN_BRACKET statement_list CLOSE_BRACKET' do |*args|
+    for_statement_list = add_identation(args[6])
+    args[0].value = "#{args[3]}.times do\n#{for_statement_list}end"
+  end
+
+  rule 'expression : FOR OPEN_PARENTHESIS IDENTIFIER COMMA IDENTIFIER CLOSE_PARENTHESIS EMPTY_BLOCK' do |*args|
+    args[0].value = "#{args[3]}.times do |#{args[5].value}|\nend"
+  end
+
+  rule 'expression : FOR OPEN_PARENTHESIS IDENTIFIER COMMA IDENTIFIER CLOSE_PARENTHESIS OPEN_BRACKET statement_list CLOSE_BRACKET' do |*args|
     for_statement_list = add_identation(args[8])
     args[0].value = "#{args[3]}.times do |#{args[5].value}|\n#{for_statement_list}end"
   end

@@ -2631,5 +2631,77 @@ RSpec.describe Parser do
         end
       end
     end
+
+    context 'when the for has only a identifier as first argument' do
+      context 'when the for block is empty' do
+        let(:data) do
+          'AGORA CURTA O MANSO!(i){};'
+        end
+
+        let(:expected_response) do
+          "i.times do\nend\n"
+        end
+
+        it 'parses the input to a valid ruby output' do
+          response = parsed_response
+
+          expect(response).to eq(expected_response)
+          expect { RubyVM::InstructionSequence.compile(response) }.not_to raise_error
+        end
+      end
+
+      context 'when the for block is not empty' do
+        let(:data) do
+          'AGORA CURTA O MANSO!(i){E QUEM DISSE QUE ISSO É PROBLEMA MEU?;};'
+        end
+
+        let(:expected_response) do
+          "i.times do\n\s\snext\nend\n"
+        end
+
+        it 'parses the input to a valid ruby output' do
+          response = parsed_response
+
+          expect(response).to eq(expected_response)
+          expect { RubyVM::InstructionSequence.compile(response) }.not_to raise_error
+        end
+      end
+    end
+
+    context 'when the for has an identifier as first argument and a identifier as second argument' do
+      context 'when the for block is empty' do
+        let(:data) do
+          'AGORA CURTA O MANSO!(i, spider){};'
+        end
+
+        let(:expected_response) do
+          "i.times do |spider|\nend\n"
+        end
+
+        it 'parses the input to a valid ruby output' do
+          response = parsed_response
+
+          expect(response).to eq(expected_response)
+          expect { RubyVM::InstructionSequence.compile(response) }.not_to raise_error
+        end
+      end
+
+      context 'when the for block is not empty' do
+        let(:data) do
+          'AGORA CURTA O MANSO!(i, spider){E QUEM DISSE QUE ISSO É PROBLEMA MEU?;};'
+        end
+
+        let(:expected_response) do
+          "i.times do |spider|\n\s\snext\nend\n"
+        end
+
+        it 'parses the input to a valid ruby output' do
+          response = parsed_response
+
+          expect(response).to eq(expected_response)
+          expect { RubyVM::InstructionSequence.compile(response) }.not_to raise_error
+        end
+      end
+    end
   end
 end

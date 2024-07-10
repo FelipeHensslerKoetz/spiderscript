@@ -3,7 +3,7 @@ require './parser.rb'
 
 @input_file = './input.spiderscript'
 @output_file = './output.rb'
-@input_text = File.read(@input_file)
+@input_text = File.read(@input_file).gsub(/\n/, '').gsub(/(\s\s+)/, '')
 @parser = Parser.new(Lexer.new)
 @ruby_code = nil
 
